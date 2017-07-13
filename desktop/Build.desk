@@ -1,0 +1,73 @@
+fullscreen   -1
+playbarshown 1
+playbar      -1
+shelf        -1
+menubar      -1
+statusbar    -1
+radial menu set main
+root {
+    split 0.677215 H {
+        split 0.118462 H L {
+            tabs 0 1 {
+                pane panetab14 -a 0 -l 10 -H /obj/ -T OBJ -m treecontrol
+            }
+            tabs 0 1 {
+                pane panetab1 -a 0 -l 10 -H /obj/ -T OBJ -m sceneview
+                pane panetab2 -a 0 -l 10 -H /obj/ -T OBJ -m chaneditor
+                pane panetab3 -a 0 -l 10 -H /obj/ -T OBJ -m iprviewer
+                pane panetab4 -a 0 -l 10 -H /img/comp1/ -T COP2 -m imageview
+                pane panetab13 -a 0 -l 10 -H /ch/ -T CHOPNET -m channelview
+                pane panetab11 -a 0 -l 10 -H /obj/ -T OBJ -m details
+            }
+        }
+        split 0.494624 V {
+            tabs 0 1 {
+                pane panetab5 -a 0 -l 10 -H /obj/ -T OBJ -m parmeditor
+                pane panetab6 -a 0 -l 10 -H /obj/ -T OBJ -m takelist
+                pane panetab12 -a 0 -l 0 -H /obj/ -T OBJ -m perfmon
+            }
+            tabs 0 1 {
+                pane panetab8 -a 0 -l 0 -H /obj/ -T OBJ -m treecontrol
+                pane panetab9 -a 0 -l 10 -H /obj/ -T OBJ -m materialpalette
+                pane panetab10 -a 0 -l 0 -H /obj/ -T OBJ -m assetbrowser
+            }
+        }
+    }
+
+    panel panel1 -w 693 57 1161 983 {
+        tabs 0 1 {
+            pane FloatingPanel -a 0 -l 0 -H /obj/ -T OBJ -m neteditor
+        }
+    }
+}
+shelfdock -o 1 -l icon_and_text -G "0.46 0.50" add shelf_set_1 shelf_set_2
+treecontrol -a 0 -h 0 -i 1 -f 0 -O 0 -S 0 -D 0 -P 0 -H 0 -V 0 -C 0 -I 0 -R 0 panetab14
+viewerstow -x open -b open -l open -m hide -c hide -d open Build.panetab1.world
+vieweroption -a 2 Build.panetab1.world
+viewlayout -s 2 Build.panetab1.world
+viewtype -t ortho_right Build.panetab1.world.`vpname("Build.panetab1.world",4)`
+viewtype -t ortho_front Build.panetab1.world.`vpname("Build.panetab1.world",3)`
+viewtype -t ortho_top Build.panetab1.world.`vpname("Build.panetab1.world",1)`
+viewtype -t perspective Build.panetab1.world.`vpname("Build.panetab1.world",2)`
+iprview -t 0.1 -l 0 -e 1 -u 1  panetab3
+chopview -a 0 -c "" -k 1 -m 1 -b 1 -e 1 -f 0 -g 0 -H 1 -i 0 -j 1 -l 0 -n 1 -V 0 -y 0 -B 0 -s 0 -S 0.034375 -u 0 -v 0 -h -10 310 -r -1.5 1.5 panetab13
+parmeditor -T 0.25 -w 0 panetab5
+takelist -w 1 -G 0.5 panetab6
+performance -c on -d on -f on -g off -k on -m off -n on -o on -t off -v on -y on -u on -e off -r absolute -w tree panetab12
+treecontrol -a 0 -h 0 -i 1 -f 0 -O 0 -S 0 -D 0 -P 0 -H 0 -V 0 -C 0 -I 0 -R 0 panetab8
+networkeditor -p '{\n	"sop:listmode":"0",\n	"obj:listmode":"0",\n	"showchilddep":"1",\n	"showdep":"0",\n	"perfstatname":"Time",\n	"showperfstats":"1",\n	"grouplistsplit":"0.75",\n	"showtree":"0",\n	"showtypesidebar":"0",\n	"showparmdialogmax":"1",\n	"treesplit":"0.25",\n	"palettesize":"150 150",\n	"typesidebarsplit":"0.25",\n	"palettemode":"0",\n	"showgrouplist":"0",\n	"backgroundimagebrightness":"1.0",\n	"backgroundimageediting":"0",\n	"gridystep":"1.0",\n	"gridmode":"0",\n	"showtimedep":"0",\n	"overviewbounds":"0.000000 0.000000 347.700000 270.900000",\n	"overviewmode":"2",\n	"palettecolors":"",\n	"showmenu":"1",\n	"gridxstep":"2.0",\n	"showparmdialog":"0"\n}\n' FloatingPanel
+netcolumns -c display,xray,select,origin,capture,bone -n OBJ FloatingPanel
+netcolumns -c display,render,template,selectabletemplate,highlight,unload,bypass,lock -n SOP FloatingPanel
+netcolumns -c delscript,comment -n PART FloatingPanel
+netcolumns -c display,render,template,bypass -n POP FloatingPanel
+netcolumns -c delscript,comment -n CHOPNET FloatingPanel
+netcolumns -c display,export,audio,bypass,lock -n CHOP FloatingPanel
+netcolumns -c startrender,bypass,lock -n ROP FloatingPanel
+netcolumns -c delscript,comment -n SHOP FloatingPanel
+netcolumns -c display,render,template,bypass -n COP2 FloatingPanel
+netcolumns -c delscript,comment -n IMG FloatingPanel
+netcolumns -c delscript,comment,input -n VOP FloatingPanel
+netcolumns -c delscript,comment -n VOPNET FloatingPanel
+netcolumns -c delscript,comment -n DOP FloatingPanel
+netcolumns -c delscript,comment -n MGR FloatingPanel
+netcolumns -c delscript,comment -n DIR FloatingPanel
