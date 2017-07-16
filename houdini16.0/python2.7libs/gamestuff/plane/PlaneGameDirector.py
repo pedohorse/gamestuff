@@ -3,6 +3,7 @@ from gamestuff.gameobject import GameObject
 from hou import Vector2
 import hou
 import random
+import math
 
 class PlaneGameDirector(Component):
 
@@ -21,6 +22,11 @@ class PlaneGameDirector(Component):
 		self.__neds=[]
 		
 		self.__playerCached=None
+		self.__score=None
+		self.__playerlives=None
+		
+		self.__levelinstances=[]
+		self.__gameover=False
 	
 	def setNeds(self,neds):
 		'''
@@ -36,11 +42,29 @@ class PlaneGameDirector(Component):
 		PlaneGameDirector.__instance=None
 		for ne in self.__neds:	
 			ne.setShapes(())
-			
+	
+	def stuffWasDestroyed(self,obj,byPlayer):
+		if(obj in self.__levelinstances):
+			self.__levelinstances.remove(obj)
+			if(byPlayer):
+				objname=obj.getName()
+				if(objname=="enemy_simple_Plane_s"):
+					self.__score.sendMessage("addScore",10)
+				elif(objname=="enemy_simple_Plane_m"):
+					self.__score.sendMessage("addScore",155)
+				elif(objname=="enemy_BOSS"):
+					self.__score.sendMessage("addScore",3333)
+	
+	def playerHit(self,livesleft):
+		self.__playerlives.sendMessage("setCount",livesleft)
+	
+	def playerDied(self):
+		print("GAMEOVER")
+		self.__gameover=True
 	
 	def onStart(self):
 		print("trying to load level...")
-		levelnode=hou.node("/obj/plane_level_bosstest")
+		levelnode=hou.node("/obj/plane_level") #_bosstest
 		if(levelnode is None):
 			print("level not found")
 		else:
@@ -51,8 +75,19 @@ class PlaneGameDirector(Component):
 			print(self.__level)
 		
 		self.__globalVel=Vector2(0,-10)
-	
-		self.createPlayer(Vector2(0,-8))
+		
+		self.__score=GameObject("SCORE")
+		self.__score.addComponent("ScoreComponent")
+		self.__score.position=Vector2(10.5,9.5)
+		
+		self.__playerlives=GameObject("PLIVES")
+		self.__playerlives.position=Vector2(11.0,8.0)
+		ssc=self.__playerlives.addComponent("StackShapesComponent")
+		ssc.setBaseShape("plane_plane_8")
+				
+		player=self.createPlayer(Vector2(0,-8))
+		
+		ssc.setCount(player.getComponent("PlanePlayerControl").lives())
 		
 		#for i in range(8):
 		#	self.createEnemySimple("plane_evil01",Vector2(-4+i,9),Vector2(0,-4),2,2,i*0.1)
@@ -77,18 +112,32 @@ class PlaneGameDirector(Component):
 	def update(self):
 		dt=self.time.deltaTime()
 		self.__timer+=dt
-		if(self.__level is not None):
-			while(len(self.__level)>0 and self.__level[0][0][1]<self.__timer*10):
-				entry=self.__level.pop(0)
-				pos=entry[0]
-				node=entry[1]
-				#print(node.name())
-				if(node.name().find("plane_small")==0):
-					self.createEnemySimple("plane_evil01",Vector2(pos[0],9.9),Vector2(node.evalParm("velx"),node.evalParm("vely")),node.evalParm("sinAmp"),node.evalParm("sinFreq"),node.evalParm("sinOffset"),destroyCallback=self.explosion)
-				elif(node.name().find("plane_big")==0):
-					self.createEnemySimple("plane_evil02",Vector2(pos[0],9.9),Vector2(node.evalParm("velx"),node.evalParm("vely")),node.evalParm("sinAmp"),node.evalParm("sinFreq"),node.evalParm("sinOffset"),node.evalParm("lives"),node.evalParm("shooting"),node.evalParm("shootRowCount"),node.evalParm("projectilesCount"),node.evalParm("spreadHalfangle"),node.evalParm("shootRowDelay"),node.evalParm("shootReloadTime"),node.evalParm("shootAngle"),self.bigExplosion)
-				elif(node.name().find("plane_boss_type1")==0):
-					self.createBoss(Vector2(pos[0],9.9))
+		if(self.__gameover):
+			self.__score.position=Vector2(7*math.sin(self.__timer*2),0)
+		else:
+			if(len(self.__level)==0 and len(self.__levelinstances)==0):
+				print("--------------------")
+				print("--CONGRATULATIONS!--")
+				print("--------------------")
+				print("YOU ARE THE WINRAR!!")
+				print("--------------------")
+				self.__score.sendMessage("addScore",self.getPlayer().getComponent("PlanePlayerControl").lives()*500)
+				self.__gameover=True
+			if(self.__level is not None):
+				while(len(self.__level)>0 and self.__level[0][0][1]<self.__timer*10):
+					entry=self.__level.pop(0)
+					pos=entry[0]
+					node=entry[1]
+					#print(node.name())
+					go=None
+					if(node.name().find("plane_small")==0):
+						go=self.createEnemySimple("plane_evil01","s",Vector2(pos[0],9.9),Vector2(node.evalParm("velx"),node.evalParm("vely")),node.evalParm("sinAmp"),node.evalParm("sinFreq"),node.evalParm("sinOffset"),destroyCallback=self.explosion)
+					elif(node.name().find("plane_big")==0):
+						go=self.createEnemySimple("plane_evil02","m",Vector2(pos[0],9.9),Vector2(node.evalParm("velx"),node.evalParm("vely")),node.evalParm("sinAmp"),node.evalParm("sinFreq"),node.evalParm("sinOffset"),node.evalParm("lives"),node.evalParm("shooting"),node.evalParm("shootRowCount"),node.evalParm("projectilesCount"),node.evalParm("spreadHalfangle"),node.evalParm("shootRowDelay"),node.evalParm("shootReloadTime"),node.evalParm("shootAngle"),self.bigExplosion)
+					elif(node.name().find("plane_boss_type1")==0):
+						go=self.createBoss(Vector2(pos[0],9.9))
+					if(go is not None):
+						self.__levelinstances.append(go)
 		
 		if(len(self.__neds)>0):
 			needsort=False
@@ -122,7 +171,7 @@ class PlaneGameDirector(Component):
 	
 	def getPlayer(self):
 		if(self.__playerCached is None):
-			self.__playerCached=GameObject.findObject("PLAYER")
+			self.__playerCached=GameObject.findObject("PLAYER$")
 		return self.__playerCached
 	
 	def getGlobalVel(self):
@@ -135,15 +184,17 @@ class PlaneGameDirector(Component):
 		go=GameObject("PLAYER")
 		shp=go.addComponent("ShapeComponent")
 		shp.setBaseShape("plane_plane")
+		shp.setColor((0.569,0.753,0.686))
 		#shp.setAnimated(True)
 		go.addComponent("PlaneComponent")
 		go.addComponent("BoundingBoxComponent").readjust("8_0","8_0")
 		go.addComponent("PlanePlayerControl")
+		go.addComponent("ActiveCollisionCheckerComponent").setCollisionMask(".*enemy.*")
 		go.position=pos
 		return go
 		
-	def createEnemySimple(self,shape,pos,vel,sinAmp,sinFreq,sinOffset,lives=None,shooting=None,shootRowCount=None,projectilesCount=None,spreadHalfangle=None,shootRowDelay=None,shootReloadTime=None,shootAngle=None,destroyCallback=None,additionalComponents=None):
-		go=GameObject("enemy_simple_Plane")
+	def createEnemySimple(self,shape,tag,pos,vel,sinAmp,sinFreq,sinOffset,lives=None,shooting=None,shootRowCount=None,projectilesCount=None,spreadHalfangle=None,shootRowDelay=None,shootReloadTime=None,shootAngle=None,destroyCallback=None,additionalComponents=None):
+		go=GameObject("enemy_simple_Plane_"+tag)
 		go.position=pos
 		shp=go.addComponent("ShapeComponent")
 		shp.setBaseShape(shape)
@@ -186,6 +237,8 @@ class PlaneGameDirector(Component):
 			cpgo.angle=angle
 			cpgo.setName("bullet_"+tag)
 			cp.shapeShortcut().setColor(clr)
+			if(random.random()<0.1):
+				cp.shapeShortcut().recreateHouNode()
 			cp.setConfig(speed)
 			cp.setActive(True)
 		
@@ -208,6 +261,8 @@ class PlaneGameDirector(Component):
 		be.setTimer(time)
 		if("jitterShape" in kwargs):
 			be.setJitterShape(kwargs["jitterShape"])
+		if("radius" in kwargs):
+			be.setExplosionParams(radius=kwargs["radius"])
 		return go
 		
 	def firePuff(self,pos,angle,vel=None,fwdShift=0,animSpeed=1):
@@ -229,7 +284,8 @@ class PlaneGameDirector(Component):
 			cpgo.angle=angle
 			cpgo.position=pos+cpgo.fwd()*fwdShift
 			cp.setActive(True)
-			
+			if(random.random()<0.1):
+				cp.shapeShortcut().recreateHouNode()
 			cp.setVel(vel)
 			cp.setAnimSpeed(animSpeed)
 			return cpgo

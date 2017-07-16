@@ -11,6 +11,7 @@ class BigExplosionComponent(Component):
 		self.__delayTimer=0
 		self.__delayTime=0.02
 		self.__radius=1 #actually, not radius, but half square side for now
+		self.__offset=Vector2()
 		self.__shape=None
 		
 		

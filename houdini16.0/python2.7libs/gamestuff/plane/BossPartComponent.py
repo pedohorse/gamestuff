@@ -29,6 +29,8 @@ class BossPartComponent(Component):
 	
 	def setActive(self,active):
 		self.__active=active
+		for tr in self.gameObject().transform.children():
+			tr.gameObject().sendMessage("setActive",active)
 		
 	
 	def onCollide(self,other):

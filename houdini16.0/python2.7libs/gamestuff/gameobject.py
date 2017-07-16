@@ -90,7 +90,7 @@ class GameObject(object):
 		print("obj marked to be destroyed")
 		
 		GameObject.__destroyQueue.append(self)
-		self.__destroyed=True
+		self.__destroyed=True #TODO: dont send messages to objects marked as destroyed (but they can still be in instances list)
 		GameObject.__toResolveDestroyQueue=True
 	
 	def __start(self):
@@ -121,6 +121,13 @@ class GameObject(object):
 					print(e.message)
 					print("traceback")
 					print(traceback.format_exc())
+				
+				#a little cheat to keep shape component always atop
+				if(len(self.__components)>0 and type(self.__components[-1]).__name__=="ShapeComponent"):
+					self.__components.insert(-1,component)
+				else:
+					self.__components.append(component)
+			
 			self.__componentsToStart=[]
 			return
 		
@@ -159,7 +166,9 @@ class GameObject(object):
 								print(traceback.format_exc())
 								
 			currMsgs.clear()
-
+		
+		#here should be component destruction queue handling
+		#sould it call onDestroy? i think not - cuz it refers to gameObject's destruction
 	
 	#DONT USE AND DEL
 	#def __processMessages(self):
@@ -203,12 +212,7 @@ class GameObject(object):
 		except:
 			print("couldnt create component  %s class instance"%compname)
 			return None
-		#a little cheat to keep shape component always atop
-	
-		if(len(self.__components)>0 and type(self.__components[-1]).__name__=="ShapeComponent"):
-			self.__components.insert(-1,comp)
-		else:
-			self.__components.append(comp)
+
 		self.__componentsToStart.append(comp)
 			
 	
@@ -220,7 +224,7 @@ class GameObject(object):
 		compname somewhere in inheritance hierarchy
 		or None if none found
 		'''
-		for comp in self.__components:
+		for comp in self.__components+self.__componentsToStart:
 			classnames=[x.__name__ for x in type(comp).__mro__]
 			for name in classnames:
 				name=name[name.rfind(".")+1:]
@@ -282,6 +286,12 @@ class GameObject(object):
 		shortcut to transform.fwd()
 		'''
 		return self.transform.fwd()
+		
+	def left(self):
+		'''
+		shortcut to transform.left()
+		'''
+		return self.transform.left()
 		
 
 	class Transform(object):
@@ -450,7 +460,7 @@ class GameObject(object):
 		#also
 		def fwd(self):
 			'''
-			get forward pointin normal hou.Vector2
+			get forward pointing normal hou.Vector2
 			'''
 			rangle=radians(self.angle)
 			si=sin(rangle)
@@ -459,6 +469,17 @@ class GameObject(object):
 			y=co
 			return hou.Vector2((x,y))
 			
+		def left(self):
+			'''
+			get left pointing normal hou.Vector2
+			'''
+			rangle=radians(self.angle)
+			si=sin(rangle)
+			co=cos(rangle)
+			x=co
+			y=si
+			return hou.Vector2((x,y))
+		
 		def lookAtPointAngle(self,point):
 			d=point-self.position
 			d=d.normalized()

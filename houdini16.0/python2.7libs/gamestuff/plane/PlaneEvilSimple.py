@@ -51,14 +51,17 @@ class PlaneEvilSimple(Component):
 	
 	def onCollide(self,other):
 		self.__lives-=1
-		self.__oldClr=self.__shape.getHouNode().color()
-		self.__shape.setColor((1,1,1))
+		if(self.__oldClr is None):
+			self.__oldClr=self.__shape.getHouNode().color()
+			self.__shape.setColor((1,1,1))
 		if(self.__lives<=0):
 			self.gameObject().destroy()
 	
 	def onDestroy(self):
+		gobj=self.gameObject()
+		if(PlaneGameDirector.instance() is not None):
+			PlaneGameDirector.instance().stuffWasDestroyed(gobj,self.__lives<=0)
 		if(self.__lives<=0):
-			gobj=self.gameObject()
 			if(self.__destroyCallback is not None):
 				self.__destroyCallback(pos=gobj.position,vel=self.__actualVel,jitterShape=self.__shape.getBaseShape()+"_8")
 				#PlaneGameDirector.instance().explosion

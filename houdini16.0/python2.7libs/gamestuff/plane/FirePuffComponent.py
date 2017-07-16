@@ -20,6 +20,9 @@ class FirePuffComponent(Component):
 		self.__shape.setAnimated(True)
 		self.__shape.setColor(self.clrs[0])
 	
+	def shapeShortcut(self):
+		return self.__shape
+	
 	def setVel(self,vel):
 		self.__vel=vel
 	

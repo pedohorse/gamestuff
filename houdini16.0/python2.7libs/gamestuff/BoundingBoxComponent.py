@@ -56,15 +56,21 @@ class BoundingBoxComponent(BaseColliderComponent):
 		#print(self.__bbmin)
 		#print(self.__bbmax)
 	
-	def offsetBbox(self,offset):
-		if(isinstance(offset,int) or isinstance(offset,float)):offset=hou.Vector2(offset,offset)
+	def offsetBbox(self,offsetmin,offsetmax=None):
+		if(isinstance(offsetmin,int) or isinstance(offsetmin,float)):offsetmin=hou.Vector2((offsetmin,offsetmin))
+		if(offsetmax is None):offsetmax=offsetmin
+		else:
+			if(isinstance(offsetmax,int) or isinstance(offsetmax,float)):offsetmax=hou.Vector2((offsetmax,offsetmax))
 		size=self.__bbmax-self.__bbmin
 		
-		offset[0]=min(size[0]*0.5 -0.000001,offset[0])  #arbitrary tolerance
-		offset[1]=min(size[1]*0.5 -0.000001,offset[1])  #arbitrary tolerance
+		#the following restrictions are not covering cases of offset shifting beyond center! (legacy code)
+		offsetmin[0]=min(size[0]*0.5 -0.000001,offsetmin[0])  #arbitrary tolerance
+		offsetmin[1]=min(size[1]*0.5 -0.000001,offsetmin[1])  #arbitrary tolerance
+		offsetmax[0]=min(size[0]*0.5 -0.000001,offsetmax[0])  #arbitrary tolerance
+		offsetmax[1]=min(size[1]*0.5 -0.000001,offsetmax[1])  #arbitrary tolerance
 		#offset=min(size[0]*0.5 -0.000001,size[1]*0.5 -0.000001,offset)
-		self.__bbmin+=offset
-		self.__bbmax-=offset
+		self.__bbmin+=offsetmin
+		self.__bbmax-=offsetmax
 		
 		self._radius2=max(self.__bbmin.lengthSquared(),self.__bbmax.lengthSquared())
 		self._radius=sqrt(self._radius2)

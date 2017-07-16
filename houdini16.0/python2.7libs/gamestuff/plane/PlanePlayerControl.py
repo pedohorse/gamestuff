@@ -13,7 +13,17 @@ class PlanePlayerControl(Component):
 		self.__inertForce=20
 		self.__speed=0
 		self.__reloadtimer=0
-
+		self.__invincibletimer=0
+		self.__oldClr=None
+		self.__lives=10
+		self.__shape=None
+	
+	def setLives(self,lives):
+		self.__lives=lives
+		
+	def lives(self):
+		return self.__lives
+	
 	def setMaxspeed(self,maxspeed):
 		self.__maxspeed=maxspeed
 	
@@ -26,11 +36,22 @@ class PlanePlayerControl(Component):
 	def onStart(self):
 		self.__plane=self.gameObject().getComponent("PlaneComponent")
 		self.__plane.setMass(0.1)
-		#print("found "+str(self.__plane))
+		self.__shape=self.gameObject().getComponent("ShapeComponent")
+		
 		
 	def update(self):
 		gobj=self.gameObject()
 		dt=self.time.deltaTime()
+		
+		if(self.__invincibletimer>0):
+			self.__invincibletimer-=dt
+		if(self.__oldClr is None):
+			if(self.__invincibletimer>0):
+				self.__oldClr=self.__shape.getHouNode().color()
+				self.__shape.setColor((1,0.5,0.5))
+		else:
+			self.__shape.setColor(self.__oldClr)
+			self.__oldClr=None
 		#keyboard check
 		
 		
@@ -60,5 +81,17 @@ class PlanePlayerControl(Component):
 		self.__speed=max(min(self.__speed,self.__maxspeed),-self.__maxspeed)
 		
 		gobj.position+=Vector2(self.__speed*dt,0)
+		if(gobj.position[0]<-9.5):gobj.position[0]=-9.5
+		elif(gobj.position[0]>9.5):gobj.position[0]=9.5
 			
-		
+	
+	def onCollide(self,other):
+		if(self.__invincibletimer>0):return
+		self.__lives-=1
+		PlaneGameDirector.instance().playerHit(self.__lives)
+		if(self.__lives<=0):
+			self.gameObject().destroy()
+			PlaneGameDirector.instance().bigExplosion(self.gameObject().position,time=4,jitterShape="plane_plane_8")
+			PlaneGameDirector.instance().playerDied()
+			
+		self.__invincibletimer=2.0

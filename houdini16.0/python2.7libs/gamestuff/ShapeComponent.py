@@ -7,6 +7,7 @@ class ShapeComponent(Component):
 		super(ShapeComponent,self).__init__(gobj)
 		
 		basenode=hou.node(nodelevel)
+		self.__nodelevel=nodelevel
 		self.__mynode=basenode.createNode("null","n0")
 		self.__mynode.setUserData("nodeshape",shapename+"_0")
 		self.__baseshape=shapename
@@ -20,6 +21,15 @@ class ShapeComponent(Component):
 		self.__currentShapeName=self.__baseshape+"_0"
 		
 		self.update() #immediately set pos and shape
+	
+	def recreateHouNode(self):
+		clr=self.__mynode.color()
+		self.__mynode.destroy()
+		self.__mynode=hou.node(self.__nodelevel).createNode("null","n0")
+		self.__mynode.setColor(clr)
+		self.__lastShapeid=-1
+		self.__lastAnimationFrame=-1
+		self.update()
 	
 	def setAnimationFrame(self,frame):
 		self.__animationFrame=int(frame)
