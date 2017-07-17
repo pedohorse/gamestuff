@@ -12,7 +12,10 @@ class BoundingBoxComponent(BaseColliderComponent):
 		self.__chc_ang=0
 		self.__chc_chg=True
 		
-		self.readjust() #Shape component must be added before this
+		try:
+			self.readjust() #Shape component must be added before this
+		except Exception:
+			pass
 		
 		
 	def readjust(self,restShapePostfix="0",restOppositeShapePostfix="8"):
@@ -24,10 +27,13 @@ class BoundingBoxComponent(BaseColliderComponent):
 		if(ne is None):return
 		
 		curShape=node.userData("nodeshape")
+		
 		rect=None
 		rect2=None
-		divizor=curShape.rfind("_")
-		if(divizor!=-1):
+		divizor=-1
+		if(curShape is not None):
+			divizor=curShape.rfind("_")
+		if(divizor!=-1 and restShapePostfix!="" and restOppositeShapePostfix!=""):
 			baseshape=curShape[:divizor]
 			
 			node.setUserData("nodeshape","_".join([baseshape,restShapePostfix]))
@@ -38,7 +44,8 @@ class BoundingBoxComponent(BaseColliderComponent):
 			rect=ne.itemRect(node,False)
 			rect2=rect
 		
-		node.setUserData("nodeshape",curShape)
+		if(curShape is not None):
+			node.setUserData("nodeshape",curShape)
 		
 		#rect
 		self.__bbmin=rect.min()

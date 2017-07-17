@@ -21,7 +21,7 @@ class SnekFoodComponent(Component):
 	
 	def update(self):
 		self.__clrtimer=(self.__clrtimer+self.time.deltaTime())%1
-		self.__shapenode.getHouNode().setColor(Color(sin(radians(self.__clrtimer*360)),sin(radians(self.__clrtimer*360+120)),sin(radians(self.__clrtimer*240))))
+		self.__shapenode.setColor(Color(sin(radians(self.__clrtimer*360)),sin(radians(self.__clrtimer*360+120)),sin(radians(self.__clrtimer*240))))
 		
 	
 	@classmethod

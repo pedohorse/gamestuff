@@ -51,7 +51,7 @@ class BossCoreComponent(Component):
 			#do stuff
 			self.__stage1_timer+=dt
 			gobj.position[0]+=0.2*cos(self.__stage1_timer)
-			if(self.__parts["taill"] is None and self.__stage1_c==0):
+			if(self.__parts["taill"] is None and self.__stage1_c%2==0):
 				self.__stage1_c+=1
 				#fire up the ass a bit
 				af=GameObject("assfire")
@@ -59,8 +59,8 @@ class BossCoreComponent(Component):
 				af.transform.localPosition=Vector2((-1.351,-9.179))
 				af.transform.localAngle=107
 				af.addComponent("BurningComponent").setConfig(length=2,intensity=1,angleVariation=90)
-			if(self.__parts["tailr"] is None and self.__stage1_c==1):
-				self.__stage1_c+=1
+			if(self.__parts["tailr"] is None and (self.__stage1_c/2)%2==0):
+				self.__stage1_c+=2
 				#fire up the ass a bit
 				af=GameObject("assfire")
 				af.transform.setParent(self.__parts["b4"].transform)
@@ -83,7 +83,7 @@ class BossCoreComponent(Component):
 			gobj.position[0]+=0.4*cos(self.__stage1_timer*2)
 			#translate
 			if(self.__parts["b4"] is None):
-				self.__targetpos=Vector2(8,9)
+				self.__targetpos=Vector2(9,9)
 				self.__state="goto"
 				
 				#fire up the ass a bit
@@ -118,7 +118,7 @@ class BossCoreComponent(Component):
 					#PlaneGameDirector.instance().createEnemySimple("plane_evil01","s", Vector2((4,9.9)), Vector2((0,-4)),2,2,0)
 			self.__assfire.setFlameMode(int(1.5+1.5*sin(self.__stage2_timer-radians(90))))
 			
-			if(self.__parts["wingl"] is None and self.__stage2_c==0):
+			if(self.__parts["wingl"] is None and self.__stage2_c%2==0):
 				self.__stage2_c+=1
 				#fire up the ass a bit
 				af=GameObject("assfire")
@@ -126,8 +126,8 @@ class BossCoreComponent(Component):
 				af.transform.localPosition=Vector2((-1.803,-0.045))
 				af.transform.localAngle=90
 				af.addComponent("BurningComponent").setConfig(length=5,intensity=1,angleVariation=90)
-			if(self.__parts["wingr"] is None and self.__stage2_c==1):
-				self.__stage2_c+=1
+			if(self.__parts["wingr"] is None and (self.__stage2_c/2)%2==0):
+				self.__stage2_c+=2
 				#fire up the ass a bit
 				af=GameObject("assfire")
 				af.transform.setParent(self.__parts["b2"].transform)
@@ -182,7 +182,7 @@ class BossCoreComponent(Component):
 			if(self.__parts["b1"] is None):
 				self.__targetpos=Vector2((0,5))
 				self.__state="desetroy"
-				PlaneGameDirector.instance().stuffWasDestroyed(self.gameObject(),Ture)
+				PlaneGameDirector.instance().stuffWasDestroyed(self.gameObject(),True)
 				gobj.destroy()
 				PlaneGameDirector.instance().bigExplosion(Vector2((0,0)),time=5,radius=8)
 				
@@ -234,7 +234,7 @@ class BossCoreComponent(Component):
 		shp.setColor((0.6,0.6,0.65))
 		b4.addComponent("BoundingBoxComponent")
 		b4.addComponent("ActiveCollisionCheckerComponent").setCollisionMask("bullet_player")
-		b4.addComponent("BossPartComponent").setLives(100)
+		b4.addComponent("BossPartComponent").setLives(70)
 		
 		
 		wl=GameObject("enemy_BOSS_WINDL")
@@ -264,7 +264,7 @@ class BossCoreComponent(Component):
 		shp.setColor((0.6,0.6,0.65))
 		tl.addComponent("BoundingBoxComponent")
 		tl.addComponent("ActiveCollisionCheckerComponent").setCollisionMask("bullet_player")
-		tl.addComponent("BossPartComponent").setLives(100)
+		tl.addComponent("BossPartComponent").setLives(70)
 		
 		
 		tr=GameObject("enemy_BOSS_TAILR")
@@ -274,7 +274,7 @@ class BossCoreComponent(Component):
 		shp.setColor((0.6,0.6,0.65))
 		tr.addComponent("BoundingBoxComponent")
 		tr.addComponent("ActiveCollisionCheckerComponent").setCollisionMask("bullet_player")
-		tr.addComponent("BossPartComponent").setLives(100)
+		tr.addComponent("BossPartComponent").setLives(70)
 		
 		trtt=GameObject("enemy_TRturret")
 		trtt.transform.setParent(tr.transform,False);

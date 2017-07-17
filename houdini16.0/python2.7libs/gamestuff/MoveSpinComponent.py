@@ -10,8 +10,8 @@ class MoveSpinComponent(Component):
 	def update(self):
 		gobj=self.gameObject()
 		dt=self.time.deltaTime()
-		gobj.position+=self.__lvel*dt
-		gobj.angle+=self.__avel*dt
+		gobj.localPosition+=self.__lvel*dt
+		gobj.localAngle+=self.__avel*dt
 	
 	def setVel(self,linvel,angvel):
 		self.__lvel=linvel

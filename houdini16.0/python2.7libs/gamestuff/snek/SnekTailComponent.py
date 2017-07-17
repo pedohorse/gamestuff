@@ -44,6 +44,7 @@ class SnekTailComponent(Component):
 		gobj.angle=trailpart[2]
 		
 	def onCollide(self,otherobj):
+		if(self.time.time()<1):return
 		gobj=self.gameObject()
 		node=gobj.getComponent("ShapeComponent").getHouNode()
 		node.setColor(hou.Color(1,1,0))

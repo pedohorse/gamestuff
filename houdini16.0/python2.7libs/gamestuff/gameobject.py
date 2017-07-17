@@ -281,6 +281,28 @@ class GameObject(object):
 	def angle(self,ang):
 		self.transform.angle=ang
 
+	@property
+	def localPosition(self):
+		'''
+		shortcut to transform.localPosition
+		'''
+		return self.transform.position
+
+	@position.setter
+	def localPosition(self,pos):
+		self.transform.position=pos
+
+	@property
+	def localAngle(self):
+		'''
+		shortcut to transform.localAngle
+		'''
+		return self.transform.angle
+
+	@angle.setter
+	def localAngle(self,ang):
+		self.transform.angle=ang
+	
 	def fwd(self):
 		'''
 		shortcut to transform.fwd()
@@ -389,7 +411,7 @@ class GameObject(object):
 				pos=self.__localposition
 				localmat=hou.Matrix3(((co,si,0.0),(-si,co,0.0),(pos[0],pos[1],1.0)))
 				if(self.__parent is not None):
-					self.__transmat=self.__parent.getTransform()*localmat
+					self.__transmat=localmat*self.__parent.getTransform()
 				else:
 					self.__transmat=localmat
 			return self.__transmat

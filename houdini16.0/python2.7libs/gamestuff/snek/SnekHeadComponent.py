@@ -95,14 +95,14 @@ class SnekHeadComponent(Component):
 				self.__targetangle=270
 				self.__rotpausetimer=pausetime
 			
-			#if(gobj.isKeyDown(Qt.Key_1)):
-			#	self.setSpeed(self.getSpeed()-0.05)
+			if(gobj.isKeyDown(Qt.Key_1)):
+				self.setSpeed(self.getSpeed()-0.05)
 				
-			#if(gobj.isKeyDown(Qt.Key_2)):
-			#	self.setSpeed(self.getSpeed()+0.05)
+			if(gobj.isKeyDown(Qt.Key_2)):
+				self.setSpeed(self.getSpeed()+0.05)
 				
-			#if(gobj.isKeyDown(Qt.Key_4)):
-			#	self.grow()
+			if(gobj.isKeyDown(Qt.Key_4)):
+				self.grow()
 			
 		else:
 			self.__rotpausetimer-=dt

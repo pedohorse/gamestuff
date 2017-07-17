@@ -6,6 +6,7 @@ from gamestuff import gameobject
 
 import math
 from hou import Vector2
+import hou
 
 class SnekGameDirector(Component):
 	__instanced=False
@@ -22,6 +23,15 @@ class SnekGameDirector(Component):
 		return self.__gameover
 	
 	def onStart(self):
+		#scan field for exsisting nodes
+		exnodes=[x for x in hou.node("/obj").children() if abs(x.position().x())<10 and abs(x.position().y())<10]
+		for node in exnodes:
+			exfood=gameobject.GameObject("exfood")
+			exfood.position=node.position()
+			exfood.addComponent("ExistingNodeShapeComponent").assignHouNode(node)
+			exfood.addComponent("SnekFoodComponent")
+			exfood.addComponent("BoundingBoxComponent").readjust("","")
+	
 		#create head
 		go=gameobject.GameObject("head")
 		shp=go.addComponent("ShapeComponent")
@@ -83,7 +93,7 @@ class SnekGameDirector(Component):
 		timepassed=self.time.time()-self.__lastfoodspawntime
 		
 		if(SnekFoodComponent.totalFoodCount()==0 or random.random()<timepassed*0.001):
-			self.spawnFood(Vector2(9.5*2*(random.random()-0.5),9.5*2*(random.random()-0.5)))
+			self.spawnFood(Vector2(9.0*2*(random.random()-0.5),9.0*2*(random.random()-0.5)))
 			self.__lastfoodspawntime=self.time.time()
 	
 	def onDestroy(self):
